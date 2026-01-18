@@ -1,4 +1,4 @@
-# sos26-template
+# sos26
 
 Turborepo + Bun の軽量モノレポテンプレート。
 

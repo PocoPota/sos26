@@ -1,5 +1,5 @@
 {
-  "name": "sos26-template",
+  "name": "sos26",
   "type": "module",
   "private": true,
   "packageManager": "bun@1.2.10",
