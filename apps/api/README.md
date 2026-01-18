@@ -65,10 +65,12 @@ export default { port: env.PORT, fetch: app.fetch }
 ## スクリプト
 
 ```bash
-bun run dev         # 開発
-bun run build       # ビルド（Bun bundler）
+bun run dev         # 開発（ホットリロード）
+bun run build       # 型チェック + ビルド（Bun bundler）
 bun run typecheck   # 型チェック
-bun run test:run    # テスト
+bun run clean       # dist, .turbo を削除
+bun run test:run    # テスト（単発実行）
+bun run test:watch  # テスト（ウォッチモード）
 ```
 
 ## クライアント連携

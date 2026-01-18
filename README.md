@@ -144,3 +144,10 @@ bun run ci
 | `bun run ci` | CI 用 Biome チェック |
 | `bun run clean` | 成果物とキャッシュを削除 |
 | `bun run clean:all` | 上記 + 依存関係も削除 |
+| `bun run db:generate` | Prisma Client 生成 |
+| `bun run db:migrate:dev` | マイグレーション作成・適用（開発） |
+| `bun run db:migrate:deploy` | マイグレーション適用（本番） |
+| `bun run db:migrate:reset` | DB リセット + 全マイグレーション適用 |
+| `bun run db:push` | スキーマを DB に直接反映 |
+| `bun run db:pull` | DB スキーマを取得 |
+| `bun run db:studio` | Prisma Studio 起動 |
