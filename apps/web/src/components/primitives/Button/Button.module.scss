@@ -1,3 +1,5 @@
-.button {
-	cursor: pointer;
+@layer components {
+	.button {
+		cursor: pointer;
+	}
 }
