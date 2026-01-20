@@ -25,7 +25,7 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
 	<StrictMode>
-		<Theme>
+		<Theme accentColor="indigo" grayColor="slate" panelBackground="solid">
 			<RouterProvider router={router} />
 		</Theme>
 	</StrictMode>
