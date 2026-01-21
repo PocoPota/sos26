@@ -1,0 +1,37 @@
+name: Validate Prisma ERD is Up-to-Date
+
+on:
+  pull_request:
+    paths:
+      - "prisma/schema.prisma"
+      - "prisma/**"
+      - "package.json"
+      - "bun.lockb"
+
+jobs:
+  validate-erd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun runtime
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate ERD from schema.prisma
+        run: bun run db:generate
+
+      - name: Verify prisma/ERD.md is up to date
+        run: |
+          git diff --exit-code -- prisma/ERD.md || {
+            echo "prisma/ERD.md is out of date. Run 'bun run db:generate' and commit the result."
+            echo "---- diff ----"
+            git --no-pager diff -- prisma/ERD.md
+            exit 1
+          }
