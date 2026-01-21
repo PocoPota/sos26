@@ -1,0 +1,36 @@
+name: Pull Request Check
+
+on:
+  pull_request:
+    paths:
+      - "prisma/schema.prisma"
+      - "prisma/**"
+      - "package.json"
+      - "bun.lockb"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - name: Install deps
+        run: bun install --frozen-lockfile
+
+      - name: Generate ERD
+        run: bun run db:generate
+
+      - name: Check ERD.md is up to date
+        run: |
+          git diff --exit-code -- prisma/ERD.md || {
+            echo "prisma/ERD.md is out of date. Run 'bun run db:generate' and commit the result."
+            echo "---- diff ----"
+            git --no-pager diff -- prisma/ERD.md
+            exit 1
+          }
