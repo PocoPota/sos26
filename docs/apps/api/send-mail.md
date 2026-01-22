@@ -24,7 +24,7 @@ SendGrid SDK の直接利用を避け、責務分離された構造を前提と�
 
 ## 2. ディレクトリ構造
 
-```txt
+```
 apps/api/src/
 ├─ lib/
 │  └─ emails/
@@ -34,12 +34,7 @@ apps/api/src/
 │     │  └─ verification.ts
 │     ├─ providers/
 │     │  └─ sendgridClient.ts
-│     ├─ types.ts
 │     └─ index.ts
-├─ routes/
-│  └─ auth.ts
-│  └─ lib/
-│     └─ env.ts
 ```
 
 ---
@@ -238,63 +233,7 @@ export default app;
 
 ---
 
-## 10. テスト（vitest）
-
-### lib/emails/providers/sendgridClient.test.ts
-
-```ts
-import { describe, expect, it, vi } from "vitest";
-
-vi.mock("@sendgrid/mail", () => ({
-  default: {
-    setApiKey: vi.fn(),
-    send: vi.fn().mockResolvedValue([{ statusCode: 202 }]),
-  },
-}));
-
-vi.mock("../../env", () => ({
-  env: {
-    SENDGRID_API_KEY: "test-api-key",
-    EMAIL_FROM: "test@example.com",
-    EMAIL_SANDBOX: true,
-  },
-}));
-
-describe("sendEmail", () => {
-  it("should send email successfully", async () => {
-    const { sendEmail } = await import("./sendgridClient");
-
-    await expect(
-      sendEmail({
-        to: "recipient@example.com",
-        subject: "Test Subject",
-        html: "<p>Test Body</p>",
-      }),
-    ).resolves.toBeUndefined();
-  });
-
-  it("should throw EmailSendError on failure", async () => {
-    const sgMail = await import("@sendgrid/mail");
-    vi.mocked(sgMail.default.send).mockRejectedValueOnce(
-      new Error("API Error"),
-    );
-
-    const { sendEmail, EmailSendError } = await import("./sendgridClient");
-
-    await expect(
-      sendEmail({
-        to: "recipient@example.com",
-        subject: "Test",
-        html: "<p>Test</p>",
-      }),
-    ).rejects.toThrow(EmailSendError);
-  });
-});
-```
-
----
-
-## 11. 拡張指針
+## 10. 拡張指針
 
 ### メール種別を追加する場合
 
