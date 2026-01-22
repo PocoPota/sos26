@@ -19,7 +19,7 @@ const envSchema = z.object({
 	// SendGrid
 	SENDGRID_API_KEY: z.string().min(1),
 	EMAIL_FROM: z.email(),
-	EMAIL_SANDBOX: z.enum(["true", "false"]).default("false"),
+	EMAIL_SANDBOX: z.coerce.boolean().default(false),
 });
 
 export const env = envSchema.parse({
