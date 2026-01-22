@@ -38,7 +38,8 @@ apps/api/src/
 │     └─ index.ts
 ├─ routes/
 │  └─ auth.ts
-└─ env.ts
+│  └─ lib/
+│     └─ env.ts
 ```
 
 ---
@@ -51,25 +52,11 @@ apps/api/src/
 # SendGrid
 SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxx
 EMAIL_FROM=no-reply@example.com
-EMAIL_SANDBOX=true
+EMAIL_SANDBOX=false
 ```
 
 - from アドレスや sandbox 設定はコードに直書きしない
-- dev / prod で挙動を切り替え可能
-
-### env.ts（型安全な環境変数管理）
-
-```ts
-import { z } from "zod";
-
-const envSchema = z.object({
-  SENDGRID_API_KEY: z.string().min(1),
-  EMAIL_FROM: z.string().email(),
-  EMAIL_SANDBOX: z.enum(["true", "false"]).default("false"),
-});
-
-export const env = envSchema.parse(process.env);
-```
+- dev / prod で挙動を切り替え可能（`EMAIL_SANDBOX` は boolean）
 
 ---
 
@@ -80,7 +67,7 @@ export const env = envSchema.parse(process.env);
 ```json
 {
   "dependencies": {
-    "@sendgrid/mail": "^8.1.0"
+    "@sendgrid/mail": "^8.1.6"
   }
 }
 ```
@@ -93,43 +80,44 @@ export const env = envSchema.parse(process.env);
 
 ```ts
 import sgMail from "@sendgrid/mail";
-import { env } from "../../../env";
+import { ZodError, z } from "zod";
+import { env } from "../../env";
+import { Errors } from "../../error";
 
 sgMail.setApiKey(env.SENDGRID_API_KEY);
 
-export type SendEmailInput = {
-  to: string;
-  subject: string;
-  html: string;
-  text?: string;
-};
+const SendEmailInputSchema = z.object({
+  to: z.email(),
+  subject: z.string().min(1, "subject is required"),
+  html: z.string().min(1, "html is required"),
+  text: z.string().optional(),
+});
 
-export class EmailSendError extends Error {
-  constructor(
-    message: string,
-    public readonly cause?: unknown,
-  ) {
-    super(message);
-    this.name = "EmailSendError";
-  }
-}
+export type SendEmailInput = z.infer<typeof SendEmailInputSchema>;
 
 export async function sendEmail(input: SendEmailInput): Promise<void> {
   try {
+    const parsed = SendEmailInputSchema.parse(input);
+
     await sgMail.send({
-      to: input.to,
+      to: parsed.to,
       from: env.EMAIL_FROM,
-      subject: input.subject,
-      html: input.html,
-      text: input.text,
+      subject: parsed.subject,
+      html: parsed.html,
+      text: parsed.text,
       mailSettings: {
         sandboxMode: {
-          enable: env.EMAIL_SANDBOX === "true",
+          enable: env.EMAIL_SANDBOX,
         },
       },
     });
   } catch (err) {
-    throw new EmailSendError("Failed to send email", err);
+    // 入力値の不正はそのまま ZodError を返す
+    if (err instanceof ZodError) throw err;
+
+    // 外部サービスの失敗などは内部エラーとして正規化
+    console.error("[Email] Failed to send email via SendGrid", err);
+    throw Errors.internal("メール送信に失敗しました");
   }
 }
 ```
@@ -172,27 +160,28 @@ export function verificationTemplate(params: { verifyUrl: string }) {
 ### lib/emails/usecases/sendVerificationEmail.ts
 
 ```ts
+import { z } from "zod";
 import { sendEmail } from "../providers/sendgridClient";
 import { verificationTemplate } from "../templates/verification";
 
-type Input = {
-  email: string;
-  verifyUrl: string;
-};
+const InputSchema = z.object({
+  email: z.email(),
+  verifyUrl: z.url(),
+});
+
+export type Input = z.infer<typeof InputSchema>;
 
 export async function sendVerificationEmail(input: Input): Promise<void> {
-  const template = verificationTemplate({
-    verifyUrl: input.verifyUrl,
-  });
+  const { email, verifyUrl } = InputSchema.parse(input);
+
+  const template = verificationTemplate({ verifyUrl });
 
   await sendEmail({
-    to: input.email,
+    to: email,
     subject: template.subject,
     html: template.html,
     text: template.text,
   });
-
-  // 必要に応じて監査ログや DB 記録を追加
 }
 ```
 
@@ -263,11 +252,11 @@ vi.mock("@sendgrid/mail", () => ({
   },
 }));
 
-vi.mock("../../../env", () => ({
+vi.mock("../../env", () => ({
   env: {
     SENDGRID_API_KEY: "test-api-key",
     EMAIL_FROM: "test@example.com",
-    EMAIL_SANDBOX: "true",
+    EMAIL_SANDBOX: true,
   },
 }));
 

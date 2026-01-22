@@ -17,6 +17,9 @@ apps/apiで使用する環境変数の設定方法とリファレンスです。
 |--------|------|-------------|------|
 | `PORT` | サーバーのポート番号 | `3000` | ❌ |
 | `CORS_ORIGIN` | CORSで許可するオリジン（カンマ区切り） | `""` | ❌ |
+| `SENDGRID_API_KEY` | SendGrid の API キー | なし | ✅ |
+| `EMAIL_FROM` | 送信元メールアドレス | なし | ✅ |
+| `EMAIL_SANDBOX` | SendGrid サンドボックスモード有効化 | `false` | ❌ |
 
 ## 設定方法
 
@@ -28,6 +31,11 @@ apps/apiで使用する環境変数の設定方法とリファレンスです。
 # apps/api/.env
 PORT=3000
 CORS_ORIGIN=http://localhost:5173,http://localhost:3001
+
+# SendGrid
+SENDGRID_API_KEY=your_sendgrid_api_key_here
+EMAIL_FROM=you@example.com
+EMAIL_SANDBOX=false
 
 # ローカル専用にしたい場合は .env.local を使用
 # apps/api/.env.local が存在すればこちらが優先されます
@@ -51,6 +59,16 @@ CORS_ORIGIN=http://localhost:5173,http://localhost:3001
 - 空文字列は除外されます
 - 未設定の場合は空配列になります
 
+**SENDGRID_API_KEY:**
+- 空であってはならない必須文字列
+
+**EMAIL_FROM:**
+- メールアドレス形式である必要があります（`z.email()`）
+
+**EMAIL_SANDBOX:**
+- 真偽値。`z.coerce.boolean()` により `"true"/"false"` 文字列も受け付けます
+- 既定は `false`
+
 ### エラー例
 
 ```
@@ -71,8 +89,11 @@ ZodError: [
 import { env } from "./lib/env";
 
 // 型安全にアクセス
-console.log(env.PORT);        // number型
-console.log(env.CORS_ORIGIN); // string[]型
+console.log(env.PORT);           // number型
+console.log(env.CORS_ORIGIN);    // string[]型
+console.log(env.SENDGRID_API_KEY); // string型
+console.log(env.EMAIL_FROM);     // string型（email）
+console.log(env.EMAIL_SANDBOX);  // boolean型
 ```
 
 ### 型定義
@@ -111,10 +132,10 @@ const envSchema = z.object({
       "各オリジンは有効なURL（http://またはhttps://で始まる）である必要があります"
     ),
 
-  // 新しい環境変数を追加
-  DATABASE_URL: z
-    .string()
-    .url(),
+  // SendGrid
+  SENDGRID_API_KEY: z.string().min(1),
+  EMAIL_FROM: z.email(),
+  EMAIL_SANDBOX: z.coerce.boolean().default(false),
 });
 ```
 
