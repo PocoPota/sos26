@@ -1,18 +1,23 @@
+import { z } from "zod";
 import { sendEmail } from "../providers/sendgridClient";
 import { verificationTemplate } from "../templates/verification";
 
-type Input = {
-	email: string;
-	verifyUrl: string;
-};
+const InputSchema = z.object({
+	email: z.email(),
+	verifyUrl: z.url(),
+});
+
+export type Input = z.infer<typeof InputSchema>;
 
 export async function sendVerificationEmail(input: Input): Promise<void> {
+	const { email, verifyUrl } = InputSchema.parse(input);
+
 	const template = verificationTemplate({
-		verifyUrl: input.verifyUrl,
+		verifyUrl,
 	});
 
 	await sendEmail({
-		to: input.email,
+		to: email,
 		subject: template.subject,
 		html: template.html,
 		text: template.text,
