@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { tsukubaEmailSchema } from "./email";
+import { tsukubaEmailSchema } from "../lib/email";
 
 /**
  * 名スキーマ

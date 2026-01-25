@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { tsukubaEmailSchema } from "./email";
-import { verificationTokenSchema } from "./token";
+import { tsukubaEmailSchema } from "../lib/email";
+import { verificationTokenSchema } from "../lib/token";
 import { firstNameSchema, lastNameSchema, userSchema } from "./user";
 
 // ─────────────────────────────────────────────────────────────
