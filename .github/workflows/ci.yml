@@ -26,6 +26,11 @@ jobs:
       - name: Run Biome CI
         run: bun run ci
 
+      - name: Check Prisma schema format
+        run: |
+          bun run format:prisma
+          git diff --exit-code prisma/schema.prisma
+
       - name: Type check
         run: bun run typecheck
 

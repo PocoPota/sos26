@@ -27,6 +27,7 @@ bun run db:generate
 
 | コマンド | 説明 |
 |---------|------|
+| `bun run format:prisma` | Prisma スキーマをフォーマット |
 | `bun run db:generate` | Prisma Client を生成 |
 | `bun run db:migrate:dev` | 開発環境でマイグレーションを作成・適用 |
 | `bun run db:migrate:deploy` | 本番環境でマイグレーションを適用 |
