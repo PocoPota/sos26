@@ -46,6 +46,14 @@ describe("TSUKUBA_EMAIL_REGEX", () => {
 		expect(TSUKUBA_EMAIL_REGEX.test("s123456a@u.tsukuba.ac.jp")).toBe(false);
 		// s.tsukuba.ac.jp ドメイン（u.のみ許可）
 		expect(TSUKUBA_EMAIL_REGEX.test("s1234567@s.tsukuba.ac.jp")).toBe(false);
+		// 複数の+を含む（未許可）
+		expect(TSUKUBA_EMAIL_REGEX.test("s1234567+foo+bar@u.tsukuba.ac.jp")).toBe(
+			false
+		);
+		// 非ASCIIのエイリアス（未許可）
+		expect(TSUKUBA_EMAIL_REGEX.test("s1234567+テスト@u.tsukuba.ac.jp")).toBe(
+			false
+		);
 	});
 });
 
@@ -81,6 +89,17 @@ describe("tsukubaEmailSchema", () => {
 		expect(result.success).toBe(true);
 		if (result.success) {
 			expect(result.data).toBe("s1234567@u.tsukuba.ac.jp");
+		}
+	});
+
+	it("大文字とエイリアスを含んでも許容する", () => {
+		const result = tsukubaEmailSchema.safeParse(
+			"S1234567+TEST_ALIAS@U.TSUKUBA.AC.JP"
+		);
+		expect(result.success).toBe(true);
+		if (result.success) {
+			// 変換後は小文字
+			expect(result.data).toBe("s1234567+test_alias@u.tsukuba.ac.jp");
 		}
 	});
 

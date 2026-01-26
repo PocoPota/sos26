@@ -44,7 +44,7 @@ export type VerifyEmailRequest = z.infer<typeof verifyEmailRequestSchema>;
  */
 export const verifyEmailResponseSchema = z.object({
 	success: z.literal(true),
-	email: z.string(),
+	email: tsukubaEmailSchema,
 });
 export type VerifyEmailResponse = z.infer<typeof verifyEmailResponseSchema>;
 
