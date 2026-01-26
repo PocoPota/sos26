@@ -1,10 +1,11 @@
 import { Heading, Link as RadixLink, Text } from "@radix-ui/themes";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, TextField } from "@/components/primitives";
 import { useAuth } from "@/lib/auth";
 import { auth } from "@/lib/firebase";
+import { isFirebaseError, mapFirebaseAuthError } from "@/lib/firebaseError";
 import styles from "../auth.module.scss";
 
 export const Route = createFileRoute("/auth/login/")({
@@ -26,11 +27,12 @@ function LoginPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
-	// 既にログイン済みならリダイレクト
-	if (isLoggedIn) {
-		navigate({ to: "/" });
-		return null;
-	}
+	// 既にログイン済みならリダイレクト（副作用で実施）
+	useEffect(() => {
+		if (isLoggedIn) {
+			navigate({ to: "/" });
+		}
+	}, [isLoggedIn, navigate]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -41,16 +43,10 @@ function LoginPage() {
 			await signInWithEmailAndPassword(auth, email, password);
 			navigate({ to: "/" });
 		} catch (err) {
-			if (err instanceof Error) {
-				if (err.message.includes("invalid-credential")) {
-					setError("メールアドレスまたはパスワードが正しくありません");
-				} else if (err.message.includes("too-many-requests")) {
-					setError(
-						"ログイン試行回数が多すぎます。しばらく待ってから再試行してください"
-					);
-				} else {
-					setError("ログインに失敗しました");
-				}
+			if (isFirebaseError(err)) {
+				setError(mapFirebaseAuthError(err));
+			} else if (err instanceof Error) {
+				setError("ログインに失敗しました");
 			}
 		} finally {
 			setLoading(false);

@@ -12,6 +12,7 @@ import { Button, TextField } from "@/components/primitives";
 import { register } from "@/lib/api/auth";
 import { useAuth } from "@/lib/auth";
 import { auth } from "@/lib/firebase";
+import { isFirebaseError, mapFirebaseAuthError } from "@/lib/firebaseError";
 import { isClientError } from "@/lib/http/error";
 import styles from "../../auth.module.scss";
 
@@ -75,6 +76,9 @@ function SetupPage() {
 				default:
 					return err.message;
 			}
+		}
+		if (isFirebaseError(err)) {
+			return mapFirebaseAuthError(err);
 		}
 		return "エラーが発生しました";
 	};
