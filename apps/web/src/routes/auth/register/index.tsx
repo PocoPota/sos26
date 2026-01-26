@@ -1,5 +1,5 @@
 import { Heading, Link as RadixLink, Text } from "@radix-ui/themes";
-import { ErrorCode } from "@sos26/shared";
+import { ErrorCode, isTsukubaEmail } from "@sos26/shared";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, TextField } from "@/components/primitives";
@@ -29,6 +29,15 @@ function RegisterPage() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError(null);
+
+		// UI側バリデーション
+		if (!isTsukubaEmail(email)) {
+			setError(
+				"筑波大学のメールアドレス（s0000000@u.tsukuba.ac.jp）を入力してください"
+			);
+			return;
+		}
+
 		setLoading(true);
 
 		try {

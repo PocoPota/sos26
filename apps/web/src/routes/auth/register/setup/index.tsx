@@ -1,5 +1,10 @@
 import { Heading, Text } from "@radix-ui/themes";
-import { ErrorCode } from "@sos26/shared";
+import {
+	ErrorCode,
+	firstNameSchema,
+	lastNameSchema,
+	passwordSchema,
+} from "@sos26/shared";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
@@ -31,12 +36,29 @@ function SetupPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
-	const validate = (
-		password: string,
-		passwordConfirm: string
-	): string | null => {
-		if (password !== passwordConfirm) return "パスワードが一致しません";
-		if (password.length < 8) return "パスワードは8文字以上で入力してください";
+	const validate = (): string | null => {
+		const lastNameResult = lastNameSchema.safeParse(lastName);
+		if (!lastNameResult.success) {
+			return lastNameResult.error.issues[0]?.message ?? "姓を入力してください";
+		}
+
+		const firstNameResult = firstNameSchema.safeParse(firstName);
+		if (!firstNameResult.success) {
+			return firstNameResult.error.issues[0]?.message ?? "名を入力してください";
+		}
+
+		const passwordResult = passwordSchema.safeParse(password);
+		if (!passwordResult.success) {
+			return (
+				passwordResult.error.issues[0]?.message ??
+				"パスワードは8文字以上で入力してください"
+			);
+		}
+
+		if (password !== passwordConfirm) {
+			return "パスワードが一致しません";
+		}
+
 		return null;
 	};
 
@@ -61,7 +83,7 @@ function SetupPage() {
 		e.preventDefault();
 		setError(null);
 
-		const validationMessage = validate(password, passwordConfirm);
+		const validationMessage = validate();
 		if (validationMessage) {
 			setError(validationMessage);
 			return;
