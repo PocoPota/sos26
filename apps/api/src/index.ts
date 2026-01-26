@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { env } from "./lib/env";
 import { errorHandler } from "./lib/error-handler";
-import { userRoute } from "./routes/user";
+import { authRoute } from "./routes/auth";
 
 const app = new Hono();
 
@@ -25,8 +25,10 @@ app.get("/", c => {
 	return c.text("Hello Hono!");
 });
 
-// Mount routes at root (e.g. http://localhost:3000/users)
-app.route("/", userRoute);
+// Mount routes
+app.route("/auth", authRoute);
+
+export { app };
 
 export default {
 	port: env.PORT,
