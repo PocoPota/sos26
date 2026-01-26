@@ -12,6 +12,23 @@ describe("TSUKUBA_EMAIL_REGEX", () => {
 		expect(TSUKUBA_EMAIL_REGEX.test("s9999999@u.tsukuba.ac.jp")).toBe(true);
 	});
 
+	it("エイリアス形式のメールアドレスにマッチする", () => {
+		expect(TSUKUBA_EMAIL_REGEX.test("s1234567+test@u.tsukuba.ac.jp")).toBe(
+			true
+		);
+		expect(TSUKUBA_EMAIL_REGEX.test("s1234567+foo.bar@u.tsukuba.ac.jp")).toBe(
+			true
+		);
+		expect(TSUKUBA_EMAIL_REGEX.test("s1234567+a-b_c@u.tsukuba.ac.jp")).toBe(
+			true
+		);
+	});
+
+	it("無効なエイリアス形式にマッチしない", () => {
+		// +の後に何もない
+		expect(TSUKUBA_EMAIL_REGEX.test("s1234567+@u.tsukuba.ac.jp")).toBe(false);
+	});
+
 	it("無効なメールアドレスにマッチしない", () => {
 		// 筑波大学ドメインではない
 		expect(TSUKUBA_EMAIL_REGEX.test("test@example.com")).toBe(false);
@@ -38,6 +55,16 @@ describe("tsukubaEmailSchema", () => {
 		expect(result.success).toBe(true);
 		if (result.success) {
 			expect(result.data).toBe("s1234567@u.tsukuba.ac.jp");
+		}
+	});
+
+	it("エイリアス形式のメールアドレスを受け入れる", () => {
+		const result = tsukubaEmailSchema.safeParse(
+			"s1234567+test@u.tsukuba.ac.jp"
+		);
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data).toBe("s1234567+test@u.tsukuba.ac.jp");
 		}
 	});
 
@@ -85,6 +112,11 @@ describe("isTsukubaEmail", () => {
 	it("有効な筑波大学メールアドレスでtrueを返す", () => {
 		expect(isTsukubaEmail("s1234567@u.tsukuba.ac.jp")).toBe(true);
 		expect(isTsukubaEmail("s0000000@u.tsukuba.ac.jp")).toBe(true);
+	});
+
+	it("エイリアス形式のメールアドレスでtrueを返す", () => {
+		expect(isTsukubaEmail("s1234567+test@u.tsukuba.ac.jp")).toBe(true);
+		expect(isTsukubaEmail("s1234567+foo.bar@u.tsukuba.ac.jp")).toBe(true);
 	});
 
 	it("大文字を含む有効なメールアドレスでtrueを返す", () => {

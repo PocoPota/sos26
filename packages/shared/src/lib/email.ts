@@ -3,8 +3,10 @@ import { z } from "zod";
 /**
  * 筑波大学メールアドレスの正規表現
  * 形式: s{学籍番号7桁}@u.tsukuba.ac.jp
+ * エイリアス形式も許可: s{学籍番号7桁}+{任意}@u.tsukuba.ac.jp
  */
-export const TSUKUBA_EMAIL_REGEX = /^s\d{7}@u\.tsukuba\.ac\.jp$/;
+export const TSUKUBA_EMAIL_REGEX =
+	/^s\d{7}(\+[a-zA-Z0-9._-]+)?@u\.tsukuba\.ac\.jp$/;
 
 /**
  * 筑波大学メールアドレススキーマ
