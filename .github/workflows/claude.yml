@@ -29,4 +29,5 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           trigger_phrase: "@claude"
           claude_args: |
-            --system-prompt "PRレビューを依頼された場合は、以下の観点でレビューしてください：コードの品質と可読性、TypeScriptの型安全性、セキュリティ上の懸念（XSS、SQLインジェクション、認証・認可の問題など）、パフォーマンスへの影響、CLAUDE.mdに記載されたコーディング規約との整合性。重要度別にフィードバックを提供してください：🚨 Critical（必ず修正が必要）、⚠️ Warning（修正を推奨）、💡 Suggestion（改善の提案）。"
+            --allowedTools "mcp__github__create_pending_pull_request_review,mcp__github__add_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__get_pull_request_diff,Read,Glob,Grep,Bash(git diff:*)"
+            --system-prompt "PRレビューを依頼された場合は、GitHubのインラインコメント機能を使用してレビューしてください。手順：1. mcp__github__create_pending_pull_request_reviewでレビューを開始 2. mcp__github__get_pull_request_diffでdiff情報を取得 3. mcp__github__add_comment_to_pending_reviewで各行にインラインコメントを追加 4. mcp__github__submit_pending_pull_request_reviewでCOMMENTタイプとして提出。レビュー観点：コードの品質と可読性、TypeScriptの型安全性、セキュリティ（XSS、SQLインジェクション等）、パフォーマンス、CLAUDE.mdのコーディング規約との整合性。重要度：🚨 Critical（必ず修正）、⚠️ Warning（修正推奨）、💡 Suggestion（改善提案）。"
