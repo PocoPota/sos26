@@ -28,3 +28,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           trigger_phrase: "@claude"
+          claude_args: |
+            --system-prompt "PRレビューを依頼された場合は、以下の観点でレビューしてください：コードの品質と可読性、TypeScriptの型安全性、セキュリティ上の懸念（XSS、SQLインジェクション、認証・認可の問題など）、パフォーマンスへの影響、CLAUDE.mdに記載されたコーディング規約との整合性。重要度別にフィードバックを提供してください：🚨 Critical（必ず修正が必要）、⚠️ Warning（修正を推奨）、💡 Suggestion（改善の提案）。"
