@@ -20,7 +20,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Read review prompt
+        id: read-prompt
+        run: |
+          {
+            echo 'content<<EOF'
+            cat .github/prompts/review.md
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
       - uses: anthropics/claude-code-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            PR #${{ github.event.issue.number }} のレビューを実行してください。
+
+            以下のレビュー指示に従ってください：
+
+            ${{ steps.read-prompt.outputs.content }}
