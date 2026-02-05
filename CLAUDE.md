@@ -48,22 +48,6 @@ bun run db:studio    # Prisma Studio
 - **TypeScript**: strict mode、noUnusedLocals/Parameters、noUncheckedIndexedAccess
 - **pre-commitフック**: Lefthookで自動format（Biome + Prisma）
 
-## PRレビュー指針
-
-PRレビューを依頼された場合は、以下の観点でレビューしてください：
-
-- コードの品質と可読性
-- TypeScriptの型安全性
-- セキュリティ上の懸念（XSS、SQLインジェクション、認証・認可の問題など）
-- パフォーマンスへの影響
-- 上記コーディング規約との整合性
-
-重要度別にフィードバックを提供してください：
-
-- 🚨 **Critical**: 必ず修正が必要な問題
-- ⚠️ **Warning**: 修正を推奨する問題
-- 💡 **Suggestion**: 改善の提案
-
 ## ドキュメント参照
 
 詳細は `/docs` を参照:
