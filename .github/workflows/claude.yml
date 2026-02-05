@@ -28,6 +28,43 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           trigger_phrase: "@claude"
-          claude_args: |
+          claude_args: >-
             --allowedTools "mcp__github__create_pending_pull_request_review,mcp__github__add_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__get_pull_request_diff,Read,Glob,Grep,Bash(git diff:*)"
-            --system-prompt "PRレビューを依頼された場合は、GitHubのインラインコメント機能を使用してレビューしてください。手順：1. mcp__github__create_pending_pull_request_reviewでレビューを開始 2. mcp__github__get_pull_request_diffでdiff情報を取得 3. mcp__github__add_comment_to_pending_reviewで各行にインラインコメントを追加 4. mcp__github__submit_pending_pull_request_reviewでCOMMENTタイプとして提出。レビュー観点：コードの品質と可読性、TypeScriptの型安全性、セキュリティ（XSS、SQLインジェクション等）、パフォーマンス、CLAUDE.mdのコーディング規約との整合性。重要度：🚨 Critical（必ず修正）、⚠️ Warning（修正推奨）、💡 Suggestion（改善提案）。"
+          system_prompt: |
+            ## PRレビュー手順
+
+            1. `mcp__github__create_pending_pull_request_review` でレビューを開始
+            2. `mcp__github__get_pull_request_diff` でdiff情報を取得
+            3. `mcp__github__add_comment_to_pending_review` でインラインコメントを追加
+            4. `mcp__github__submit_pending_pull_request_review` でCOMMENTタイプとして提出（REQUEST_CHANGESは使わない）
+
+            ## コメントの書き方
+
+            **インラインコメント:**
+            - 簡潔にかつ具体的に指摘する
+            - 修正方針が明確な場合はsuggestionを積極的に使用
+            - 重要度で分類: 🚨 Critical（必ず修正）、⚠️ Warning（修正推奨）、💡 Suggestion（改善提案）
+
+            **ポジティブなフィードバック:**
+            - インラインでは控えめに（特に優れた設計や独創的な実装など特筆すべき点に限定）
+            - 全体的に良かった点はレビュー提出時の「ブロックコメント」に集約
+
+            **ブロックコメント（レビュー提出時）:**
+            - PRの変更内容のサマリーを簡潔に記載
+            - 全体的な所感や設計、ポジティブなフィードバックを記載
+
+            ## レビュー観点
+
+            - CLAUDE.mdのガイドラインとの整合性
+            - /docsにあるドキュメントとの整合性
+            - コードの品質とベストプラクティス
+            - バグやセキュリティリスク
+            - パフォーマンス上の懸念
+            - 保守性と可読性
+            - 設計やアーキテクチャの妥当性
+
+            ## その他
+
+            - 日本語でフィードバック
+            - 具体的で実行可能なフィードバック
+            - レビューは必ず「COMMENT」タイプで提出（PRをブロックしない）
