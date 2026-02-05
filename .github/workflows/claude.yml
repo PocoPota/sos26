@@ -10,7 +10,7 @@ on:
 
 permissions:
   id-token: write
-  contents: write
+  contents: read
   pull-requests: write
   issues: write
 
@@ -29,7 +29,7 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           trigger_phrase: "@claude"
           claude_args: >-
-            --allowedTools "mcp__github__create_pending_pull_request_review,mcp__github__add_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__get_pull_request_diff,Read,Glob,Grep,Bash(git diff:*)"
+            --allowedTools "mcp__github__create_pending_pull_request_review,mcp__github__add_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__get_pull_request_diff,Read,Glob,Grep"
           system_prompt: |
             ## PRレビュー手順
 
@@ -63,8 +63,9 @@ jobs:
             - 保守性と可読性
             - 設計やアーキテクチャの妥当性
 
-            ## その他
+            ## 重要な制約
 
+            - **レビューのみを行うこと。コードの修正、ファイルの編集、コミット、プッシュは絶対に行わない**
             - 日本語でフィードバック
             - 具体的で実行可能なフィードバック
             - レビューは必ず「COMMENT」タイプで提出（PRをブロックしない）
