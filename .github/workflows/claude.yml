@@ -9,38 +9,20 @@ on:
     types: [submitted]
 
 permissions:
-  id-token: write
-  contents: write
+  contents: read
   pull-requests: write
   issues: write
 
 jobs:
   claude:
-    if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude'))
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - uses: anthropics/claude-code-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: |
-            ## レビュー時の観点
-            PRレビューを依頼された場合は、以下の観点でレビューしてください：
-            - コードの品質と可読性
-            - TypeScriptの型安全性
-            - セキュリティ上の懸念（XSS、SQLインジェクション、認証・認可の問題など）
-            - パフォーマンスへの影響
-            - CLAUDE.mdに記載されたコーディング規約との整合性
-
-            重要度別にフィードバックを提供してください：
-            - 🚨 Critical: 必ず修正が必要な問題
-            - ⚠️ Warning: 修正を推奨する問題
-            - 💡 Suggestion: 改善の提案
+          trigger_phrase: "@claude"
